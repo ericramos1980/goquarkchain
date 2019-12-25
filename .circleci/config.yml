@@ -25,14 +25,8 @@ jobs:
           name: check remote stats
           command: |
             apt-get update && apt-get install sshpass
-
-            echo "bbb"
             sshpass -p $CheckDBHostPassword scp -o StrictHostKeyChecking=no root@167.71.117.195:/tmp/status.txt ./
-            echo "ccc"
-            ls
-            pwd
             echo `date +"%Y-%m-%d %H:%M:%S"`
-            echo "status.txt"
             cat status.txt
 
 
@@ -43,7 +37,6 @@ workflows:
   build_and_test:
     jobs:
       - build
-      - check-db
   nightly:
     triggers:
       - schedule:
