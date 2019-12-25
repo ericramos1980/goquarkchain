@@ -37,6 +37,7 @@ workflows:
   build_and_test:
     jobs:
       - build
+      - check-db
   nightly:
     triggers:
       - schedule:
