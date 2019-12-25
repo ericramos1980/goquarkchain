@@ -44,7 +44,7 @@ workflows:
           filters:
             branches:
               only:
-                - add-checkdb-ci
+                - users/chunfengSun/add-checkdb-ci
     jobs:
       - build
       - check-db:
