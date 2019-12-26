@@ -4,7 +4,7 @@ git pull
 go build
 chmod +x ./stop.sh && ./stop.sh
 NOW=`date +%Y-%m-%d.%H:%M:%S`
-DATE=`curl https://qkcmainnet-go.s3.amazonaws.com/data/LATEST` >> /tmp/status.txt
+DATE=`curl https://qkcmainnet-go.s3.amazonaws.com/data/LATEST`
 echo "current time" $NOW  "remote time" $DATE >> /tmp/status.txt
 rm -rf data.tar.gz
 curl https://qkcmainnet-go.s3.amazonaws.com/data/`curl https://qkcmainnet-go.s3.amazonaws.com/data/LATEST`.tar.gz --output data.tar.gz
@@ -20,7 +20,7 @@ chmod +x cluster
 ./cluster --cluster_config ../../mainnet/singularity/cluster_config_template.json --service S3>> S3.log 2>&1 &
 sleep 3
 ./cluster --cluster_config ../../mainnet/singularity/cluster_config_template.json  --check_db --check_db_rblock_from=1000
-if [ "${NOW:0:15}" = "${DATE:0:15}" ];then
+if [ "${NOW:0:10}" = "${DATE:0:10}" ];then
 	echo "=" >> /tmp/status.txt
 else
 	echo "!=" >> /tmp/status.txt
