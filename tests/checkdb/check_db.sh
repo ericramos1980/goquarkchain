@@ -1,7 +1,7 @@
 #!/bin/bash
-touch /tmp/status.txt
 git pull
 go build
+CLUSTER_DIR="/go/src/github.com/QuarkChain/goquarkchain/cmd/cluster"
 chmod +x ./stop.sh && ./stop.sh
 NOW=`date +%Y-%m-%d.%H:%M:%S`
 DATE=`curl https://qkcmainnet-go.s3.amazonaws.com/data/LATEST`
@@ -9,20 +9,34 @@ echo "current time" $NOW  "remote time" $DATE >> /tmp/status.txt
 rm -rf data.tar.gz
 curl https://qkcmainnet-go.s3.amazonaws.com/data/`curl https://qkcmainnet-go.s3.amazonaws.com/data/LATEST`.tar.gz --output data.tar.gz
 tar xvfz data.tar.gz
-rm -rf qkc-data && mkdir -p ./qkc-data/
-rm -rf data.tar.gz && mv mainnet qkc-data/
+rm -rf $CLUSTER_DIR/qkc-data && mkdir -p $CLUSTER_DIR/qkc-data/
+rm -rf data.tar.gz && mv mainnet $CLUSTER_DIR/qkc-data
 
 # checkdb
-chmod +x cluster
-./cluster --cluster_config ../../mainnet/singularity/cluster_config_template.json --service S0>> S0.log 2>&1 &
-./cluster --cluster_config ../../mainnet/singularity/cluster_config_template.json --service S1>> S1.log 2>&1 &
-./cluster --cluster_config ../../mainnet/singularity/cluster_config_template.json --service S2>> S2.log 2>&1 &
-./cluster --cluster_config ../../mainnet/singularity/cluster_config_template.json --service S3>> S3.log 2>&1 &
+chmod +x $CLUSTER_DIR/cluster
+rm -rf *.log
+$CLUSTER_DIR/cluster --cluster_config /go/src/github.com/QuarkChain/goquarkchain/mainnet/singularity/cluster_config_template.json --service S0>> S0.log 2>&1 &
+$CLUSTER_DIR/cluster --cluster_config /go/src/github.com/QuarkChain/goquarkchain/mainnet/singularity/cluster_config_template.json --service S1>> S1.log 2>&1 &
+$CLUSTER_DIR/cluster --cluster_config /go/src/github.com/QuarkChain/goquarkchain/mainnet/singularity/cluster_config_template.json --service S2>> S2.log 2>&1 &
+$CLUSTER_DIR/cluster --cluster_config /go/src/github.com/QuarkChain/goquarkchain/mainnet/singularity/cluster_config_template.json --service S3>> S3.log 2>&1 &
 sleep 3
-./cluster --cluster_config ../../mainnet/singularity/cluster_config_template.json  --check_db --check_db_rblock_from=1000
+echo "ready to checkdb" >> /tmp/status.txt
+$CLUSTER_DIR/cluster --cluster_config /go/src/github.com/QuarkChain/goquarkchain/mainnet/singularity/cluster_config_template.json  --check_db --check_db_rblock_from=1000 >> cc.log 2>&1
+echo "end to checkdb" >> /tmp/status.txt
+
+ee=`cat /go/src/github.com/QuarkChain/goquarkchain/cmd/cluster/cc.log | grep ERROR`
+if [ -z "$ee" ]; then
+	echo "no error" >> /tmp/status.txt
+else
+	echo $ee >> /tmp/status.txt
+	echo "!=" >> /tmp/status.txt
+	./stop.sh
+	exit 0
+fi
+
 if [ "${NOW:0:10}" = "${DATE:0:10}" ];then
 	echo "=" >> /tmp/status.txt
 else
 	echo "!=" >> /tmp/status.txt
 fi
-./stop.sh
+./stop.s
