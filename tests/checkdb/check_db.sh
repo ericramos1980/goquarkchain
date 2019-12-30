@@ -20,13 +20,13 @@ $CLUSTER_DIR/cluster --cluster_config /go/src/github.com/QuarkChain/goquarkchain
 $CLUSTER_DIR/cluster --cluster_config /go/src/github.com/QuarkChain/goquarkchain/mainnet/singularity/cluster_config_template.json --service S2>> S2.log 2>&1 &
 $CLUSTER_DIR/cluster --cluster_config /go/src/github.com/QuarkChain/goquarkchain/mainnet/singularity/cluster_config_template.json --service S3>> S3.log 2>&1 &
 sleep 3
-echo "ready to checkdb" >> /tmp/status.txt
-$CLUSTER_DIR/cluster --cluster_config /go/src/github.com/QuarkChain/goquarkchain/mainnet/singularity/cluster_config_template.json  --check_db --check_db_rblock_from=1000 >> cc.log 2>&1
-echo "end to checkdb" >> /tmp/status.txt
+echo "ready to checkdb `date +%Y-%m-%d.%H:%M:%S`" >> /tmp/status.txt
+$CLUSTER_DIR/cluster --cluster_config /go/src/github.com/QuarkChain/goquarkchain/mainnet/singularity/cluster_config_template.json  --check_db >> cc.log 2>&1
+echo "end to checkdb `date +%Y-%m-%d.%H:%M:%S`" >> /tmp/status.txt
 
 ee=`cat /go/src/github.com/QuarkChain/goquarkchain/cmd/cluster/cc.log | grep ERROR`
 if [ -z "$ee" ]; then
-	echo "no error" >> /tmp/status.txt
+	echo "no error"
 else
 	echo $ee >> /tmp/status.txt
 	echo "!=" >> /tmp/status.txt
@@ -39,4 +39,4 @@ if [ "${NOW:0:10}" = "${DATE:0:10}" ];then
 else
 	echo "!=" >> /tmp/status.txt
 fi
-./stop.s
+./stop.sh
